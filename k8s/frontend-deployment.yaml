@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docs-agent-frontend
+  namespace: docs-agent
+  labels:
+    app: docs-agent-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: docs-agent-frontend
+  template:
+    metadata:
+      labels:
+        app: docs-agent-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: docs-agent-frontend:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: 32Mi
+            cpu: 50m
+          limits:
+            memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: docs-agent-frontend
+  namespace: docs-agent
+spec:
+  selector:
+    app: docs-agent-frontend
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP

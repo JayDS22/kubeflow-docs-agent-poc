@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "query": "How do I install Kubeflow on a local cluster?",
+    "expected_keywords": ["kind", "minikube", "manifest", "kustomize", "kubectl"],
+    "category": "installation"
+  },
+  {
+    "id": 2,
+    "query": "What is KServe and how does it work?",
+    "expected_keywords": ["inference", "serving", "InferenceService", "prediction", "model"],
+    "category": "kserve"
+  },
+  {
+    "id": 3,
+    "query": "How do I create a Kubeflow Pipeline?",
+    "expected_keywords": ["dsl", "pipeline", "component", "kfp", "compile"],
+    "category": "pipelines"
+  },
+  {
+    "id": 4,
+    "query": "What is Katib and how do I run hyperparameter tuning?",
+    "expected_keywords": ["katib", "hyperparameter", "experiment", "trial", "objective"],
+    "category": "katib"
+  },
+  {
+    "id": 5,
+    "query": "How do I set up Kubeflow Notebooks?",
+    "expected_keywords": ["notebook", "jupyter", "workspace", "profile", "namespace"],
+    "category": "notebooks"
+  },
+  {
+    "id": 6,
+    "query": "What is the Kubeflow Training Operator?",
+    "expected_keywords": ["training", "operator", "TFJob", "PyTorchJob", "distributed"],
+    "category": "training"
+  },
+  {
+    "id": 7,
+    "query": "How do I use the Kubeflow Pipelines SDK?",
+    "expected_keywords": ["kfp", "sdk", "client", "component", "run"],
+    "category": "pipelines"
+  },
+  {
+    "id": 8,
+    "query": "How do I configure authentication for Kubeflow?",
+    "expected_keywords": ["auth", "dex", "oidc", "istio", "login"],
+    "category": "security"
+  },
+  {
+    "id": 9,
+    "query": "What are Kubeflow profiles and multi-tenancy?",
+    "expected_keywords": ["profile", "namespace", "tenant", "isolation", "rbac"],
+    "category": "platform"
+  },
+  {
+    "id": 10,
+    "query": "How do I deploy a model with KServe InferenceService?",
+    "expected_keywords": ["InferenceService", "predictor", "transformer", "runtime", "deploy"],
+    "category": "kserve"
+  },
+  {
+    "id": 11,
+    "query": "How do I pass data between pipeline components?",
+    "expected_keywords": ["artifact", "output", "input", "parameter", "dsl"],
+    "category": "pipelines"
+  },
+  {
+    "id": 12,
+    "query": "What container images does Kubeflow use?",
+    "expected_keywords": ["image", "container", "registry", "docker", "base"],
+    "category": "platform"
+  },
+  {
+    "id": 13,
+    "query": "How do I upgrade Kubeflow to a new version?",
+    "expected_keywords": ["upgrade", "version", "migrate", "manifest", "release"],
+    "category": "installation"
+  },
+  {
+    "id": 14,
+    "query": "How do I use Kubeflow on AWS?",
+    "expected_keywords": ["aws", "eks", "terraform", "cognito", "s3"],
+    "category": "cloud"
+  },
+  {
+    "id": 15,
+    "query": "What is a Kubeflow Pipeline component?",
+    "expected_keywords": ["component", "container", "func", "decorator", "input"],
+    "category": "pipelines"
+  },
+  {
+    "id": 16,
+    "query": "How do I monitor Kubeflow with Prometheus?",
+    "expected_keywords": ["prometheus", "grafana", "metrics", "monitor", "dashboard"],
+    "category": "observability"
+  },
+  {
+    "id": 17,
+    "query": "How does Kubeflow handle GPU scheduling?",
+    "expected_keywords": ["gpu", "resource", "limits", "nvidia", "schedule"],
+    "category": "platform"
+  },
+  {
+    "id": 18,
+    "query": "How do I create a recurring pipeline run?",
+    "expected_keywords": ["recurring", "schedule", "cron", "run", "trigger"],
+    "category": "pipelines"
+  },
+  {
+    "id": 19,
+    "query": "What is the Model Registry in Kubeflow?",
+    "expected_keywords": ["model", "registry", "version", "artifact", "metadata"],
+    "category": "serving"
+  },
+  {
+    "id": 20,
+    "query": "How do I troubleshoot pods stuck in Pending state?",
+    "expected_keywords": ["pending", "node", "resource", "schedule", "describe"],
+    "category": "debugging"
+  }
+]

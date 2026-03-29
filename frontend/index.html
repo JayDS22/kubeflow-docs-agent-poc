@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kubeflow Docs Agent</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>Kubeflow Docs Agent</h1>
+    <span class="subtitle">Agentic RAG powered by LangGraph + Milvus</span>
+    <span id="status-dot" class="status-dot"></span>
+  </header>
+
+  <div id="chat-container">
+    <div id="messages">
+      <div class="message bot">
+        <div class="content">
+          Hello! I can help you with Kubeflow documentation, pipelines, KServe, Katib, and more.
+          Try asking something like <em>"How do I install Kubeflow on a local cluster?"</em>
+        </div>
+      </div>
+    </div>
+
+    <div id="input-area">
+      <textarea id="query" placeholder="Ask about Kubeflow..." rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
+      <button id="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:8000'
+  : `${window.location.protocol}//${window.location.hostname}:8000`;
+
+const messagesEl = document.getElementById('messages');
+const queryEl = document.getElementById('query');
+const sendBtn = document.getElementById('send-btn');
+const statusDot = document.getElementById('status-dot');
+
+// check backend health on load
+async function checkHealth() {
+  try {
+    const resp = await fetch(`${API_URL}/health`);
+    const data = await resp.json();
+    statusDot.className = 'status-dot ' + (data.status === 'healthy' ? 'healthy' : 'degraded');
+    statusDot.title = `Milvus: ${data.milvus_connected}, Model: ${data.model_loaded}`;
+  } catch {
+    statusDot.className = 'status-dot offline';
+    statusDot.title = 'Backend unreachable';
+  }
+}
+checkHealth();
+setInterval(checkHealth, 30000);
+
+function addMessage(text, sender, citations) {
+  const div = document.createElement('div');
+  div.className = `message ${sender}`;
+
+  const content = document.createElement('div');
+  content.className = 'content';
+  content.innerHTML = formatMarkdown(text);
+  div.appendChild(content);
+
+  if (citations && citations.length > 0) {
+    const citDiv = document.createElement('div');
+    citDiv.className = 'citations';
+    citDiv.innerHTML = '<strong>Sources:</strong> ' +
+      citations.map(url => `<a href="${url}" target="_blank" rel="noopener">${shortenUrl(url)}</a>`).join(' | ');
+    div.appendChild(citDiv);
+  }
+
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  return content;
+}
+
+function addStreamingMessage() {
+  const div = document.createElement('div');
+  div.className = 'message bot';
+  const content = document.createElement('div');
+  content.className = 'content';
+  content.innerHTML = '<span class="typing">Thinking...</span>';
+  div.appendChild(content);
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  return { container: div, content };
+}
+
+function shortenUrl(url) {
+  try {
+    const u = new URL(url);
+    return u.pathname.replace(/\/$/, '').split('/').slice(-2).join('/') || u.hostname;
+  } catch {
+    return url.slice(0, 40);
+  }
+}
+
+function formatMarkdown(text) {
+  // basic markdown: code blocks, inline code, bold, links
+  return text
+    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+}
+
+async function sendMessage() {
+  const query = queryEl.value.trim();
+  if (!query) return;
+
+  queryEl.value = '';
+  queryEl.style.height = 'auto';
+  sendBtn.disabled = true;
+
+  addMessage(query, 'user');
+  const { container, content } = addStreamingMessage();
+
+  try {
+    const resp = await fetch(`${API_URL}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, stream: true }),
+    });
+
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let fullText = '';
+    let citations = [];
+    let started = false;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value, { stream: true });
+      const lines = chunk.split('\n');
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const data = JSON.parse(line.slice(6));
+          if (data.type === 'token') {
+            if (!started) {
+              content.innerHTML = '';
+              started = true;
+            }
+            fullText += data.content;
+            content.innerHTML = formatMarkdown(fullText);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+          } else if (data.type === 'done') {
+            citations = data.citations || [];
+          }
+        } catch { /* partial JSON, skip */ }
+      }
+    }
+
+    // append citations below the response
+    if (citations.length > 0) {
+      const citDiv = document.createElement('div');
+      citDiv.className = 'citations';
+      citDiv.innerHTML = '<strong>Sources:</strong> ' +
+        citations.map(url => `<a href="${url}" target="_blank" rel="noopener">${shortenUrl(url)}</a>`).join(' | ');
+      container.appendChild(citDiv);
+    }
+
+  } catch (err) {
+    content.innerHTML = `<span class="error">Error: ${err.message}. Is the backend running?</span>`;
+  }
+
+  sendBtn.disabled = false;
+  queryEl.focus();
+}
+
+// auto-resize textarea
+queryEl.addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docs-agent-server
+  namespace: docs-agent
+  labels:
+    app: docs-agent-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: docs-agent-server
+  template:
+    metadata:
+      labels:
+        app: docs-agent-server
+    spec:
+      containers:
+      - name: server
+        image: docs-agent-server:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8000
+          name: api
+        - containerPort: 8001
+          name: mcp
+        env:
+        - name: MILVUS_URI
+          value: "http://milvus.docs-agent.svc.cluster.local:19530"
+        - name: LLM_API_URL
+          valueFrom:
+            secretKeyRef:
+              name: llm-credentials
+              key: api-url
+              optional: true
+        - name: LLM_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: llm-credentials
+              key: api-key
+              optional: true
+        - name: LLM_MODEL
+          value: "llama-3.1-8b-instant"
+        - name: CONTENT_MAX_CHARS
+          value: "0"
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 250m
+          limits:
+            memory: 2Gi
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 15

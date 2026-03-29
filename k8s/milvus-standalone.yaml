@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: milvus-standalone
+  namespace: docs-agent
+  labels:
+    app: milvus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: milvus
+  template:
+    metadata:
+      labels:
+        app: milvus
+    spec:
+      containers:
+      - name: etcd
+        image: quay.io/coreos/etcd:v3.5.5
+        command:
+        - etcd
+        - -advertise-client-urls=http://127.0.0.1:2379
+        - -listen-client-urls=http://0.0.0.0:2379
+        - --data-dir=/etcd
+        resources:
+          requests:
+            memory: 128Mi
+            cpu: 100m
+          limits:
+            memory: 256Mi
+      - name: minio
+        image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+        command: ["minio", "server", "/minio_data"]
+        env:
+        - name: MINIO_ACCESS_KEY
+          value: minioadmin
+        - name: MINIO_SECRET_KEY
+          value: minioadmin
+        resources:
+          requests:
+            memory: 128Mi
+            cpu: 100m
+          limits:
+            memory: 256Mi
+      - name: milvus
+        image: milvusdb/milvus:v2.4.0
+        command: ["milvus", "run", "standalone"]
+        env:
+        - name: ETCD_ENDPOINTS
+          value: "127.0.0.1:2379"
+        - name: MINIO_ADDRESS
+          value: "127.0.0.1:9000"
+        ports:
+        - containerPort: 19530
+          name: grpc
+        - containerPort: 9091
+          name: metrics
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 250m
+          limits:
+            memory: 1Gi
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 9091
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 9091
+          initialDelaySeconds: 60
+          periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: milvus
+  namespace: docs-agent
+spec:
+  selector:
+    app: milvus
+  ports:
+  - name: grpc
+    port: 19530
+    targetPort: 19530
+  type: ClusterIP
