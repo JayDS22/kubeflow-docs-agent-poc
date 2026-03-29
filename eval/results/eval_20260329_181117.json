@@ -1,0 +1,407 @@
+{
+  "summary": {
+    "total_queries": 20,
+    "evaluated": 20,
+    "errors": 0,
+    "avg_keyword_recall": 0.81,
+    "avg_latency_s": 0.339,
+    "citation_coverage": 1.0,
+    "pct_under_5s": 100.0
+  },
+  "results": [
+    {
+      "id": 1,
+      "query": "How do I install Kubeflow on a local cluster?",
+      "category": "installation",
+      "intent_detected": "docs",
+      "keyword_recall": 0.8,
+      "keywords_found": [
+        "kind",
+        "manifest",
+        "kustomize",
+        "kubectl"
+      ],
+      "keywords_missing": [
+        "minikube"
+      ],
+      "citation_count": 5,
+      "has_valid_citations": true,
+      "latency_s": 0.74,
+      "answer_length": 1101
+    },
+    {
+      "id": 2,
+      "query": "What is KServe and how does it work?",
+      "category": "kserve",
+      "intent_detected": "docs",
+      "keyword_recall": 1.0,
+      "keywords_found": [
+        "inference",
+        "serving",
+        "InferenceService",
+        "prediction",
+        "model"
+      ],
+      "keywords_missing": [],
+      "citation_count": 5,
+      "has_valid_citations": true,
+      "latency_s": 0.695,
+      "answer_length": 1877
+    },
+    {
+      "id": 3,
+      "query": "How do I create a Kubeflow Pipeline?",
+      "category": "pipelines",
+      "intent_detected": "docs",
+      "keyword_recall": 0.8,
+      "keywords_found": [
+        "pipeline",
+        "component",
+        "kfp",
+        "compile"
+      ],
+      "keywords_missing": [
+        "dsl"
+      ],
+      "citation_count": 5,
+      "has_valid_citations": true,
+      "latency_s": 0.861,
+      "answer_length": 1709
+    },
+    {
+      "id": 4,
+      "query": "What is Katib and how do I run hyperparameter tuning?",
+      "category": "katib",
+      "intent_detected": "docs",
+      "keyword_recall": 1.0,
+      "keywords_found": [
+        "katib",
+        "hyperparameter",
+        "experiment",
+        "trial",
+        "objective"
+      ],
+      "keywords_missing": [],
+      "citation_count": 5,
+      "has_valid_citations": true,
+      "latency_s": 1.39,
+      "answer_length": 2501
+    },
+    {
+      "id": 5,
+      "query": "How do I set up Kubeflow Notebooks?",
+      "category": "notebooks",
+      "intent_detected": "docs",
+      "keyword_recall": 0.8,
+      "keywords_found": [
+        "notebook",
+        "workspace",
+        "profile",
+        "namespace"
+      ],
+      "keywords_missing": [
+        "jupyter"
+      ],
+      "citation_count": 5,
+      "has_valid_citations": true,
+      "latency_s": 0.879,
+      "answer_length": 1998
+    },
+    {
+      "id": 6,
+      "query": "What is the Kubeflow Training Operator?",
+      "category": "training",
+      "intent_detected": "docs",
+      "keyword_recall": 0.6,
+      "keywords_found": [
+        "training",
+        "operator",
+        "distributed"
+      ],
+      "keywords_missing": [
+        "TFJob",
+        "PyTorchJob"
+      ],
+      "citation_count": 5,
+      "has_valid_citations": true,
+      "latency_s": 0.163,
+      "answer_length": 3088
+    },
+    {
+      "id": 7,
+      "query": "How do I use the Kubeflow Pipelines SDK?",
+      "category": "pipelines",
+      "intent_detected": "docs",
+      "keyword_recall": 0.8,
+      "keywords_found": [
+        "kfp",
+        "sdk",
+        "component",
+        "run"
+      ],
+      "keywords_missing": [
+        "client"
+      ],
+      "citation_count": 5,
+      "has_valid_citations": true,
+      "latency_s": 0.157,
+      "answer_length": 3004
+    },
+    {
+      "id": 8,
+      "query": "How do I configure authentication for Kubeflow?",
+      "category": "security",
+      "intent_detected": "docs",
+      "keyword_recall": 0.6,
+      "keywords_found": [
+        "auth",
+        "dex",
+        "istio"
+      ],
+      "keywords_missing": [
+        "oidc",
+        "login"
+      ],
+      "citation_count": 5,
+      "has_valid_citations": true,
+      "latency_s": 0.147,
+      "answer_length": 3451
+    },
+    {
+      "id": 9,
+      "query": "What are Kubeflow profiles and multi-tenancy?",
+      "category": "platform",
+      "intent_detected": "docs",
+      "keyword_recall": 0.8,
+      "keywords_found": [
+        "profile",
+        "namespace",
+        "isolation",
+        "rbac"
+      ],
+      "keywords_missing": [
+        "tenant"
+      ],
+      "citation_count": 5,
+      "has_valid_citations": true,
+      "latency_s": 0.149,
+      "answer_length": 4121
+    },
+    {
+      "id": 10,
+      "query": "How do I deploy a model with KServe InferenceService?",
+      "category": "kserve",
+      "intent_detected": "docs",
+      "keyword_recall": 0.8,
+      "keywords_found": [
+        "InferenceService",
+        "predictor",
+        "runtime",
+        "deploy"
+      ],
+      "keywords_missing": [
+        "transformer"
+      ],
+      "citation_count": 5,
+      "has_valid_citations": true,
+      "latency_s": 0.147,
+      "answer_length": 4411
+    },
+    {
+      "id": 11,
+      "query": "How do I pass data between pipeline components?",
+      "category": "pipelines",
+      "intent_detected": "docs",
+      "keyword_recall": 0.8,
+      "keywords_found": [
+        "output",
+        "input",
+        "parameter",
+        "dsl"
+      ],
+      "keywords_missing": [
+        "artifact"
+      ],
+      "citation_count": 5,
+      "has_valid_citations": true,
+      "latency_s": 0.148,
+      "answer_length": 4880
+    },
+    {
+      "id": 12,
+      "query": "What container images does Kubeflow use?",
+      "category": "platform",
+      "intent_detected": "docs",
+      "keyword_recall": 1.0,
+      "keywords_found": [
+        "image",
+        "container",
+        "registry",
+        "docker",
+        "base"
+      ],
+      "keywords_missing": [],
+      "citation_count": 5,
+      "has_valid_citations": true,
+      "latency_s": 0.149,
+      "answer_length": 3285
+    },
+    {
+      "id": 13,
+      "query": "How do I upgrade Kubeflow to a new version?",
+      "category": "installation",
+      "intent_detected": "docs",
+      "keyword_recall": 0.8,
+      "keywords_found": [
+        "upgrade",
+        "version",
+        "manifest",
+        "release"
+      ],
+      "keywords_missing": [
+        "migrate"
+      ],
+      "citation_count": 5,
+      "has_valid_citations": true,
+      "latency_s": 0.158,
+      "answer_length": 3239
+    },
+    {
+      "id": 14,
+      "query": "How do I use Kubeflow on AWS?",
+      "category": "cloud",
+      "intent_detected": "docs",
+      "keyword_recall": 0.2,
+      "keywords_found": [
+        "aws"
+      ],
+      "keywords_missing": [
+        "eks",
+        "terraform",
+        "cognito",
+        "s3"
+      ],
+      "citation_count": 5,
+      "has_valid_citations": true,
+      "latency_s": 0.145,
+      "answer_length": 2915
+    },
+    {
+      "id": 15,
+      "query": "What is a Kubeflow Pipeline component?",
+      "category": "pipelines",
+      "intent_detected": "docs",
+      "keyword_recall": 0.8,
+      "keywords_found": [
+        "component",
+        "container",
+        "func",
+        "input"
+      ],
+      "keywords_missing": [
+        "decorator"
+      ],
+      "citation_count": 5,
+      "has_valid_citations": true,
+      "latency_s": 0.149,
+      "answer_length": 4892
+    },
+    {
+      "id": 16,
+      "query": "How do I monitor Kubeflow with Prometheus?",
+      "category": "observability",
+      "intent_detected": "docs",
+      "keyword_recall": 1.0,
+      "keywords_found": [
+        "prometheus",
+        "grafana",
+        "metrics",
+        "monitor",
+        "dashboard"
+      ],
+      "keywords_missing": [],
+      "citation_count": 5,
+      "has_valid_citations": true,
+      "latency_s": 0.144,
+      "answer_length": 3799
+    },
+    {
+      "id": 17,
+      "query": "How does Kubeflow handle GPU scheduling?",
+      "category": "platform",
+      "intent_detected": "docs",
+      "keyword_recall": 0.8,
+      "keywords_found": [
+        "gpu",
+        "limits",
+        "nvidia",
+        "schedule"
+      ],
+      "keywords_missing": [
+        "resource"
+      ],
+      "citation_count": 5,
+      "has_valid_citations": true,
+      "latency_s": 0.139,
+      "answer_length": 3787
+    },
+    {
+      "id": 18,
+      "query": "How do I create a recurring pipeline run?",
+      "category": "pipelines",
+      "intent_detected": "docs",
+      "keyword_recall": 1.0,
+      "keywords_found": [
+        "recurring",
+        "schedule",
+        "cron",
+        "run",
+        "trigger"
+      ],
+      "keywords_missing": [],
+      "citation_count": 5,
+      "has_valid_citations": true,
+      "latency_s": 0.144,
+      "answer_length": 4417
+    },
+    {
+      "id": 19,
+      "query": "What is the Model Registry in Kubeflow?",
+      "category": "serving",
+      "intent_detected": "docs",
+      "keyword_recall": 0.8,
+      "keywords_found": [
+        "model",
+        "registry",
+        "version",
+        "metadata"
+      ],
+      "keywords_missing": [
+        "artifact"
+      ],
+      "citation_count": 5,
+      "has_valid_citations": true,
+      "latency_s": 0.137,
+      "answer_length": 3119
+    },
+    {
+      "id": 20,
+      "query": "How do I troubleshoot pods stuck in Pending state?",
+      "category": "debugging",
+      "intent_detected": "docs",
+      "keyword_recall": 1.0,
+      "keywords_found": [
+        "pending",
+        "node",
+        "resource",
+        "schedule",
+        "describe"
+      ],
+      "keywords_missing": [],
+      "citation_count": 5,
+      "has_valid_citations": true,
+      "latency_s": 0.138,
+      "answer_length": 4240
+    }
+  ]
+}

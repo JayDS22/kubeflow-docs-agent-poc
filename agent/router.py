@@ -68,6 +68,17 @@ def classify_intent(query: str) -> str:
     if docs_score == 0 and issues_score == 0:
         return "out_of_scope"
 
-    intent = "docs" if docs_score >= issues_score else "issues"
+    # when error-signal words are present, boost issues score to break ties
+    # caused by ambiguous terms like "pipeline" appearing in both contexts
+    error_signals = {"error", "bug", "crash", "fail", "broken", "debug",
+                     "traceback", "exception", "oom", "timeout", "problem",
+                     "crashloopbackoff", "imagepullbackoff", "troubleshoot"}
+    if tokens & error_signals:
+        issues_score += 2
+
+    if docs_score == 0 and issues_score == 0:
+        return "out_of_scope"
+
+    intent = "docs" if docs_score > issues_score else "issues"
     logger.info("Router: query='%.60s...' -> %s (docs=%d, issues=%d)", q, intent, docs_score, issues_score)
     return intent

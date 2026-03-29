@@ -25,8 +25,7 @@ UPSERT_BATCH = int(os.getenv("UPSERT_BATCH", "100"))
 
 # schema matches the spec: content_text at 4096 chars (not 512, not 2000)
 SCHEMA_FIELDS = [
-    FieldSchema("id", DataType.INT64, is_primary=True, auto_id=True),
-    FieldSchema("file_unique_id", DataType.VARCHAR, max_length=512),
+    FieldSchema("file_unique_id", DataType.VARCHAR, max_length=512, is_primary=True),
     FieldSchema("file_path", DataType.VARCHAR, max_length=512),
     FieldSchema("citation_url", DataType.VARCHAR, max_length=1024),
     FieldSchema("content_text", DataType.VARCHAR, max_length=4096),
