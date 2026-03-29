@@ -4,104 +4,550 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kubeflow Docs Agent</title>
-<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg-deep: #060a10;
+  --bg-primary: #0b1120;
+  --bg-surface: #111827;
+  --bg-elevated: #1a2332;
+  --border: rgba(56, 78, 112, 0.3);
+  --border-accent: rgba(59, 130, 246, 0.25);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent: #3b82f6;
+  --accent-hover: #60a5fa;
+  --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+  --user-bg: linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(99,102,241,0.1) 100%);
+  --user-border: rgba(59, 130, 246, 0.2);
+  --bot-bg: rgba(17, 24, 39, 0.5);
+  --bot-border: rgba(56, 78, 112, 0.2);
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --sidebar-w: 270px;
+}
+
+body {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  height: 100vh;
+  overflow: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: -30%; left: -10%;
+  width: 60%; height: 60%;
+  background: radial-gradient(ellipse, rgba(59,130,246,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -20%; right: -10%;
+  width: 50%; height: 50%;
+  background: radial-gradient(ellipse, rgba(99,102,241,0.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* layout */
+#layout { display: flex; height: 100vh; position: relative; z-index: 1; }
+
+/* sidebar */
+#sidebar {
+  width: var(--sidebar-w);
+  background: var(--bg-primary);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+}
+
+#sidebar.collapsed { transform: translateX(calc(-1 * var(--sidebar-w))); position: absolute; height: 100%; z-index: 10; }
+
+.sidebar-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-brand svg { width: 28px; height: 28px; flex-shrink: 0; }
+
+.sidebar-brand span {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.new-chat-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-gradient);
+  color: white;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.new-chat-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(59,130,246,0.3); }
+
+.new-chat-btn svg { width: 16px; height: 16px; }
+
+/* history list */
+.history-label {
+  padding: 12px 16px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+}
+
+#history-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 8px;
+}
+
+#history-list::-webkit-scrollbar { width: 4px; }
+#history-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: 2px;
+  position: relative;
+}
+
+.history-item:hover { background: rgba(59, 130, 246, 0.06); }
+
+.history-item.active { background: rgba(59, 130, 246, 0.1); border: 1px solid var(--border-accent); }
+
+.history-item .h-icon {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.history-item .h-icon svg { width: 14px; height: 14px; color: var(--text-muted); }
+
+.history-item .h-text { flex: 1; overflow: hidden; }
+
+.history-item .h-title {
+  font-size: 12.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-primary);
+}
+
+.history-item .h-time {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.history-item .h-delete {
+  opacity: 0;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.history-item:hover .h-delete { opacity: 1; }
+.history-item .h-delete:hover { color: var(--error); background: rgba(239,68,68,0.1); }
+.history-item .h-delete svg { width: 14px; height: 14px; }
+
+.history-empty {
+  padding: 20px 16px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* main panel */
+#main { flex: 1; display: flex; flex-direction: column; max-width: 100%; overflow: hidden; }
+
+header {
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  background: rgba(11, 17, 32, 0.8);
+  flex-shrink: 0;
+}
+
+.menu-btn {
+  display: none;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 6px;
+  transition: all 0.15s;
+}
+
+.menu-btn:hover { background: var(--bg-surface); color: var(--text-primary); }
+.menu-btn svg { width: 18px; height: 18px; }
+
+.header-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+.status-badge {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.15);
+  font-size: 11px; font-weight: 500;
+  color: var(--success);
+  transition: all 0.3s;
+}
+
+.status-badge.degraded { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.15); color: var(--warning); }
+.status-badge.offline { background: rgba(239,68,68,0.08); border-color: rgba(239,68,68,0.15); color: var(--error); }
+
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: pulse-dot 2s infinite; }
+
+@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* chat */
+#chat-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+#messages { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth; max-width: 780px; margin: 0 auto; width: 100%; }
+
+.welcome-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin: 20px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.welcome-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--accent-gradient); }
+.welcome-card h2 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.welcome-card p { color: var(--text-secondary); font-size: 14px; line-height: 1.6; margin-bottom: 16px; }
+
+.quick-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.quick-action {
+  padding: 8px 14px; border-radius: 8px;
+  background: rgba(59,130,246,0.06);
+  border: 1px solid var(--border-accent);
+  color: var(--accent-hover);
+  font-size: 12.5px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s; font-family: inherit;
+}
+
+.quick-action:hover { background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.4); transform: translateY(-1px); }
+
+.message { max-width: 82%; animation: msg-in 0.3s cubic-bezier(0.16,1,0.3,1); }
+@keyframes msg-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.message.user { align-self: flex-end; }
+.message.bot { align-self: flex-start; }
+
+.msg-bubble { padding: 14px 18px; border-radius: var(--radius); font-size: 14px; line-height: 1.65; }
+.message.user .msg-bubble { background: var(--user-bg); border: 1px solid var(--user-border); border-bottom-right-radius: 4px; }
+.message.bot .msg-bubble { background: var(--bot-bg); border: 1px solid var(--bot-border); border-bottom-left-radius: 4px; backdrop-filter: blur(10px); }
+
+.msg-bubble code { background: rgba(0,0,0,0.3); padding: 2px 7px; border-radius: 5px; font-size: 12.5px; font-family: 'JetBrains Mono', monospace; color: var(--accent-hover); }
+.msg-bubble pre { background: rgba(0,0,0,0.35); padding: 14px; border-radius: var(--radius-sm); overflow-x: auto; margin: 10px 0; border: 1px solid var(--border); }
+.msg-bubble pre code { padding: 0; background: none; color: var(--text-primary); }
+
+.citations { margin-top: 12px; padding: 10px 14px; background: rgba(59,130,246,0.04); border: 1px solid var(--border-accent); border-radius: var(--radius-sm); font-size: 12px; }
+.citations-label { color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 10px; margin-bottom: 6px; }
+.citations a { color: var(--accent-hover); text-decoration: none; font-weight: 500; }
+.citations a:hover { color: #93bbfc; text-decoration: underline; }
+.citation-links { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+
+.typing-indicator { display: flex; gap: 4px; padding: 4px 0; }
+.typing-indicator span { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); animation: bounce 1.2s infinite; }
+.typing-indicator span:nth-child(2) { animation-delay: 0.15s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+
+.error-text { color: var(--error); }
+
+#input-area { padding: 16px 24px 20px; border-top: 1px solid var(--border); backdrop-filter: blur(20px); background: rgba(11,17,32,0.8); flex-shrink: 0; }
+
+.input-row { max-width: 780px; margin: 0 auto; width: 100%; }
+
+.input-wrapper { display: flex; gap: 10px; align-items: flex-end; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 14px; padding: 6px 6px 6px 16px; transition: border-color 0.2s, box-shadow 0.2s; }
+.input-wrapper:focus-within { border-color: rgba(59,130,246,0.4); box-shadow: 0 0 0 3px rgba(59,130,246,0.06); }
+
+#query { flex: 1; background: transparent; border: none; color: var(--text-primary); font-size: 14px; font-family: 'DM Sans', sans-serif; resize: none; outline: none; min-height: 36px; max-height: 120px; padding: 8px 0; line-height: 1.5; }
+#query::placeholder { color: var(--text-muted); }
+
+#send-btn { background: var(--accent-gradient); color: white; border: none; border-radius: 10px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: all 0.2s; }
+#send-btn:hover { transform: scale(1.05); box-shadow: 0 4px 16px rgba(59,130,246,0.3); }
+#send-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+#send-btn svg { width: 18px; height: 18px; }
+
+.footer-note { text-align: center; padding: 8px; font-size: 11px; color: var(--text-muted); }
+.footer-note a { color: var(--text-secondary); text-decoration: none; }
+
+#messages::-webkit-scrollbar { width: 5px; }
+#messages::-webkit-scrollbar-track { background: transparent; }
+#messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+@media (max-width: 768px) {
+  #sidebar { position: absolute; height: 100%; z-index: 10; transform: translateX(calc(-1 * var(--sidebar-w))); }
+  #sidebar.open { transform: translateX(0); box-shadow: 10px 0 40px rgba(0,0,0,0.5); }
+  .menu-btn { display: flex; }
+  .message { max-width: 90%; }
+}
+</style>
 </head>
 <body>
-<div id="app">
-  <header>
-    <h1>Kubeflow Docs Agent</h1>
-    <span class="subtitle">Agentic RAG powered by LangGraph + Milvus</span>
-    <span id="status-dot" class="status-dot"></span>
-  </header>
+<div id="layout">
+  <!-- sidebar -->
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="kf" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs>
+          <g transform="translate(20,20) scale(0.85)">
+            <polygon points="128,10 236,68 236,188 128,246 20,188 20,68" fill="none" stroke="url(#kf)" stroke-width="8" opacity="0.25"/>
+            <polygon points="128,40 210,85 210,175 128,220 46,175 46,85" fill="url(#kf)" opacity="0.12"/>
+            <polygon points="128,60 190,95 190,165 128,200 66,165 66,95" fill="url(#kf)" opacity="0.25"/>
+            <text x="128" y="145" text-anchor="middle" fill="url(#kf)" font-family="DM Sans,sans-serif" font-weight="700" font-size="72">K</text>
+          </g>
+        </svg>
+        <span>Kubeflow Agent</span>
+      </div>
+      <button class="new-chat-btn" onclick="newChat()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Chat
+      </button>
+    </div>
+    <div class="history-label">Chat History</div>
+    <div id="history-list">
+      <div class="history-empty">No conversations yet.<br>Start one above!</div>
+    </div>
+  </aside>
 
-  <div id="chat-container">
-    <div id="messages">
-      <div class="message bot">
-        <div class="content">
-          Hello! I can help you with Kubeflow documentation, pipelines, KServe, Katib, and more.
-          Try asking something like <em>"How do I install Kubeflow on a local cluster?"</em>
+  <!-- main -->
+  <div id="main">
+    <header>
+      <button class="menu-btn" onclick="toggleSidebar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <span class="header-title" id="header-title">New Conversation</span>
+      <div class="header-right">
+        <div id="status-badge" class="status-badge offline">
+          <span class="status-dot"></span>
+          <span id="status-text">Connecting</span>
         </div>
       </div>
-    </div>
+    </header>
 
-    <div id="input-area">
-      <textarea id="query" placeholder="Ask about Kubeflow..." rows="1"
-        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
-      <button id="send-btn" onclick="sendMessage()">Send</button>
+    <div id="chat-container">
+      <div id="messages"></div>
+      <div id="input-area">
+        <div class="input-row">
+          <div class="input-wrapper">
+            <textarea id="query" placeholder="Ask about Kubeflow..." rows="1"
+              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
+            <button id="send-btn" onclick="sendMessage()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+          <div class="footer-note">Built for <a href="https://www.kubeflow.org/events/gsoc-2026/" target="_blank">GSoC 2026 Project 1</a> &middot; Powered by LangGraph + Milvus</div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-const API_URL = window.location.hostname === 'localhost'
-  ? 'http://localhost:8000'
-  : `${window.location.protocol}//${window.location.hostname}:8000`;
-
+const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:8000' : `${window.location.protocol}//${window.location.hostname}:8000`;
 const messagesEl = document.getElementById('messages');
 const queryEl = document.getElementById('query');
 const sendBtn = document.getElementById('send-btn');
-const statusDot = document.getElementById('status-dot');
+const statusBadge = document.getElementById('status-badge');
+const statusText = document.getElementById('status-text');
+const headerTitle = document.getElementById('header-title');
+const historyList = document.getElementById('history-list');
 
-// check backend health on load
+// state
+let chats = JSON.parse(localStorage.getItem('kf_chats') || '[]');
+let activeChatId = null;
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+function saveChats() { localStorage.setItem('kf_chats', JSON.stringify(chats)); }
+
+function getChat(id) { return chats.find(c => c.id === id); }
+
+function timeAgo(ts) {
+  const diff = Date.now() - ts;
+  if (diff < 60000) return 'Just now';
+  if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+  if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+  return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+function renderHistory() {
+  if (chats.length === 0) {
+    historyList.innerHTML = '<div class="history-empty">No conversations yet.<br>Start one above!</div>';
+    return;
+  }
+  historyList.innerHTML = chats.sort((a, b) => b.updated - a.updated).map(c => `
+    <div class="history-item ${c.id === activeChatId ? 'active' : ''}" onclick="loadChat('${c.id}')">
+      <div class="h-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <div class="h-text">
+        <div class="h-title">${escapeHtml(c.title)}</div>
+        <div class="h-time">${timeAgo(c.updated)} &middot; ${c.messages.filter(m => m.role === 'user').length} messages</div>
+      </div>
+      <button class="h-delete" onclick="event.stopPropagation();deleteChat('${c.id}')" title="Delete">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+      </button>
+    </div>
+  `).join('');
+}
+
+function showWelcome() {
+  messagesEl.innerHTML = `
+    <div class="welcome-card">
+      <h2>Welcome to Kubeflow Docs Agent</h2>
+      <p>I'm an AI assistant grounded in official Kubeflow documentation. Ask me about installation, pipelines, KServe, Katib, notebooks, and more.</p>
+      <div class="quick-actions">
+        <button class="quick-action" onclick="askQuestion('How do I install Kubeflow on a local cluster?')">Install Kubeflow</button>
+        <button class="quick-action" onclick="askQuestion('What is KServe and how does it work?')">KServe Overview</button>
+        <button class="quick-action" onclick="askQuestion('How do I create a Kubeflow Pipeline?')">Create Pipeline</button>
+        <button class="quick-action" onclick="askQuestion('What is Katib?')">Katib Tuning</button>
+      </div>
+    </div>`;
+  headerTitle.textContent = 'New Conversation';
+}
+
+function newChat() {
+  activeChatId = null;
+  showWelcome();
+  renderHistory();
+  // close sidebar on mobile
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function loadChat(id) {
+  const chat = getChat(id);
+  if (!chat) return;
+  activeChatId = id;
+  headerTitle.textContent = chat.title;
+  messagesEl.innerHTML = '';
+
+  chat.messages.forEach(m => {
+    if (m.role === 'user') {
+      addUserMessageDOM(m.text);
+    } else {
+      const { container, bubble } = addBotMessageDOM();
+      bubble.innerHTML = formatMarkdown(m.text);
+      if (m.citations && m.citations.length > 0) {
+        const citDiv = document.createElement('div');
+        citDiv.className = 'citations';
+        citDiv.innerHTML = `<div class="citations-label">Sources</div><div class="citation-links">${m.citations.map(u => `<a href="${u}" target="_blank" rel="noopener">${shortenUrl(u)}</a>`).join('')}</div>`;
+        container.appendChild(citDiv);
+      }
+    }
+  });
+
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  renderHistory();
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function deleteChat(id) {
+  chats = chats.filter(c => c.id !== id);
+  saveChats();
+  if (activeChatId === id) newChat();
+  else renderHistory();
+}
+
+function ensureActiveChat(firstQuery) {
+  if (!activeChatId) {
+    const chat = { id: uid(), title: firstQuery.slice(0, 50), messages: [], created: Date.now(), updated: Date.now() };
+    chats.push(chat);
+    activeChatId = chat.id;
+    headerTitle.textContent = chat.title;
+    // remove welcome card
+    const wc = messagesEl.querySelector('.welcome-card');
+    if (wc) wc.remove();
+  }
+  return getChat(activeChatId);
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// health
 async function checkHealth() {
   try {
-    const resp = await fetch(`${API_URL}/health`);
-    const data = await resp.json();
-    statusDot.className = 'status-dot ' + (data.status === 'healthy' ? 'healthy' : 'degraded');
-    statusDot.title = `Milvus: ${data.milvus_connected}, Model: ${data.model_loaded}`;
+    const r = await fetch(`${API_URL}/health`);
+    const d = await r.json();
+    statusBadge.className = 'status-badge' + (d.status === 'healthy' ? '' : ' degraded');
+    statusText.textContent = d.status === 'healthy' ? 'Online' : 'Degraded';
   } catch {
-    statusDot.className = 'status-dot offline';
-    statusDot.title = 'Backend unreachable';
+    statusBadge.className = 'status-badge offline';
+    statusText.textContent = 'Offline';
   }
 }
 checkHealth();
 setInterval(checkHealth, 30000);
 
-function addMessage(text, sender, citations) {
-  const div = document.createElement('div');
-  div.className = `message ${sender}`;
-
-  const content = document.createElement('div');
-  content.className = 'content';
-  content.innerHTML = formatMarkdown(text);
-  div.appendChild(content);
-
-  if (citations && citations.length > 0) {
-    const citDiv = document.createElement('div');
-    citDiv.className = 'citations';
-    citDiv.innerHTML = '<strong>Sources:</strong> ' +
-      citations.map(url => `<a href="${url}" target="_blank" rel="noopener">${shortenUrl(url)}</a>`).join(' | ');
-    div.appendChild(citDiv);
-  }
-
-  messagesEl.appendChild(div);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
-  return content;
-}
-
-function addStreamingMessage() {
-  const div = document.createElement('div');
-  div.className = 'message bot';
-  const content = document.createElement('div');
-  content.className = 'content';
-  content.innerHTML = '<span class="typing">Thinking...</span>';
-  div.appendChild(content);
-  messagesEl.appendChild(div);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
-  return { container: div, content };
-}
-
-function shortenUrl(url) {
-  try {
-    const u = new URL(url);
-    return u.pathname.replace(/\/$/, '').split('/').slice(-2).join('/') || u.hostname;
-  } catch {
-    return url.slice(0, 40);
-  }
-}
+// dom helpers
+function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
 
 function formatMarkdown(text) {
-  // basic markdown: code blocks, inline code, bold, links
   return text
     .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
     .replace(/`([^`]+)`/g, '<code>$1</code>')
@@ -109,16 +555,48 @@ function formatMarkdown(text) {
     .replace(/\n/g, '<br>');
 }
 
+function shortenUrl(url) {
+  try { const p = new URL(url).pathname.replace(/\/$/, '').split('/').filter(Boolean); return p.slice(-2).join('/') || new URL(url).hostname; }
+  catch { return url.slice(0, 40); }
+}
+
+function addUserMessageDOM(text) {
+  const div = document.createElement('div');
+  div.className = 'message user';
+  div.innerHTML = `<div class="msg-bubble">${escapeHtml(text)}</div>`;
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function addBotMessageDOM() {
+  const div = document.createElement('div');
+  div.className = 'message bot';
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+  div.appendChild(bubble);
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  return { container: div, bubble };
+}
+
+function askQuestion(q) { queryEl.value = q; sendMessage(); }
+
 async function sendMessage() {
   const query = queryEl.value.trim();
   if (!query) return;
-
   queryEl.value = '';
   queryEl.style.height = 'auto';
   sendBtn.disabled = true;
 
-  addMessage(query, 'user');
-  const { container, content } = addStreamingMessage();
+  const chat = ensureActiveChat(query);
+  chat.messages.push({ role: 'user', text: query });
+  chat.updated = Date.now();
+  saveChats();
+  renderHistory();
+
+  addUserMessageDOM(query);
+  const { container, bubble } = addBotMessageDOM();
 
   try {
     const resp = await fetch(`${API_URL}/chat`, {
@@ -126,63 +604,60 @@ async function sendMessage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query, stream: true }),
     });
-
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
 
     const reader = resp.body.getReader();
     const decoder = new TextDecoder();
-    let fullText = '';
-    let citations = [];
-    let started = false;
+    let fullText = '', citations = [], started = false;
 
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split('\n');
-
-      for (const line of lines) {
+      for (const line of decoder.decode(value, { stream: true }).split('\n')) {
         if (!line.startsWith('data: ')) continue;
         try {
           const data = JSON.parse(line.slice(6));
           if (data.type === 'token') {
-            if (!started) {
-              content.innerHTML = '';
-              started = true;
-            }
+            if (!started) { bubble.innerHTML = ''; started = true; }
             fullText += data.content;
-            content.innerHTML = formatMarkdown(fullText);
+            bubble.innerHTML = formatMarkdown(fullText);
             messagesEl.scrollTop = messagesEl.scrollHeight;
           } else if (data.type === 'done') {
             citations = data.citations || [];
           }
-        } catch { /* partial JSON, skip */ }
+        } catch {}
       }
     }
 
-    // append citations below the response
+    // save bot response
+    chat.messages.push({ role: 'bot', text: fullText, citations });
+    chat.updated = Date.now();
+    saveChats();
+
     if (citations.length > 0) {
       const citDiv = document.createElement('div');
       citDiv.className = 'citations';
-      citDiv.innerHTML = '<strong>Sources:</strong> ' +
-        citations.map(url => `<a href="${url}" target="_blank" rel="noopener">${shortenUrl(url)}</a>`).join(' | ');
+      citDiv.innerHTML = `<div class="citations-label">Sources</div><div class="citation-links">${citations.map(u => `<a href="${u}" target="_blank" rel="noopener">${shortenUrl(u)}</a>`).join('')}</div>`;
       container.appendChild(citDiv);
     }
-
   } catch (err) {
-    content.innerHTML = `<span class="error">Error: ${err.message}. Is the backend running?</span>`;
+    bubble.innerHTML = '<span class="error-text">Connection error. Is the backend running on port 8000?</span>';
+    chat.messages.push({ role: 'bot', text: 'Connection error.', citations: [] });
+    saveChats();
   }
 
   sendBtn.disabled = false;
   queryEl.focus();
 }
 
-// auto-resize textarea
 queryEl.addEventListener('input', function() {
   this.style.height = 'auto';
   this.style.height = Math.min(this.scrollHeight, 120) + 'px';
 });
+
+// init
+showWelcome();
+renderHistory();
 </script>
 </body>
 </html>
