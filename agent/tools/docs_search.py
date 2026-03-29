@@ -33,7 +33,7 @@ def search_kubeflow_docs(query: str, top_k: int = 5) -> list[dict]:
             data=[query_embedding],
             limit=top_k,
             output_fields=["content_text", "citation_url", "file_path", "chunk_index"],
-            search_params={"metric_type": "COSINE"},
+            search_params={"metric_type": "COSINE", "params": {"nprobe": 10}},
         )
     except Exception as e:
         logger.error("Milvus search failed on %s: %s", COLLECTION, e)

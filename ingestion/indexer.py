@@ -20,12 +20,10 @@ from pymilvus import (
 logger = logging.getLogger(__name__)
 
 MILVUS_URI = os.getenv("MILVUS_URI", "http://localhost:19530")
-MILVUS_TOKEN = os.getenv("MILVUS_TOKEN", "")
 EMBEDDING_DIM = int(os.getenv("EMBEDDING_DIM", "768"))
 UPSERT_BATCH = int(os.getenv("UPSERT_BATCH", "100"))
 
-# schema: file_unique_id is the primary key to enable idempotent upsert.
-# auto_id is OFF because Milvus requires user-managed PKs for upsert.
+# schema matches the spec: content_text at 4096 chars (not 512, not 2000)
 SCHEMA_FIELDS = [
     FieldSchema("file_unique_id", DataType.VARCHAR, max_length=512, is_primary=True),
     FieldSchema("file_path", DataType.VARCHAR, max_length=512),
@@ -61,20 +59,16 @@ def _ensure_collection(client: MilvusClient, name: str) -> None:
     schema = CollectionSchema(fields=SCHEMA_FIELDS, description=f"RAG collection: {name}")
     client.create_collection(collection_name=name, schema=schema)
 
-    # Zilliz Cloud serverless auto-indexes, so index creation may fail there.
-    # Local Milvus needs an explicit index.
-    try:
-        index_params = client.prepare_index_params()
-        index_params.add_index(
-            field_name="embedding",
-            index_type="IVF_FLAT",
-            metric_type="COSINE",
-            params={"nlist": 128},
-        )
-        client.create_index(collection_name=name, index_params=index_params)
-        logger.info("Created collection '%s' with IVF_FLAT COSINE index", name)
-    except Exception as e:
-        logger.info("Index creation skipped (Zilliz Cloud auto-indexes): %s", e)
+    # create IVF_FLAT index for ANN search
+    index_params = client.prepare_index_params()
+    index_params.add_index(
+        field_name="embedding",
+        index_type="IVF_FLAT",
+        metric_type="COSINE",
+        params={"nlist": 128},
+    )
+    client.create_index(collection_name=name, index_params=index_params)
+    logger.info("Created collection '%s' with IVF_FLAT COSINE index", name)
 
 
 def index_documents(input_path: str, collection_name: str = "docs_rag") -> int:
@@ -84,7 +78,7 @@ def index_documents(input_path: str, collection_name: str = "docs_rag") -> int:
     Uses upsert keyed on file_unique_id for idempotent ingestion.
     Returns the number of records upserted.
     """
-    client = MilvusClient(uri=MILVUS_URI, token=MILVUS_TOKEN) if MILVUS_TOKEN else MilvusClient(uri=MILVUS_URI)
+    client = MilvusClient(uri=MILVUS_URI)
     _wait_for_milvus(client)
     _ensure_collection(client, collection_name)
 
@@ -121,11 +115,8 @@ def index_documents(input_path: str, collection_name: str = "docs_rag") -> int:
             # continue with next batch rather than aborting the entire run
             continue
 
-    # load collection for searching (not needed on Zilliz Cloud serverless)
-    try:
-        client.load_collection(collection_name)
-    except Exception:
-        pass
+    # load collection for searching
+    client.load_collection(collection_name)
     logger.info("Indexing complete: %d records in '%s'", total, collection_name)
     return total
 
