@@ -24,11 +24,21 @@ User Query -> FastAPI (:8000) -> LangGraph StateGraph
   -> LLM Synthesizer (Groq / Ollama / OpenAI) -> SSE streamed response + citations
 ```
 
+## Demo Video
+
+[![Kubeflow Docs Agent POC Demo](https://img.youtube.com/vi/LQHBS4K-aGA/maxresdefault.jpg)](https://youtu.be/LQHBS4K-aGA)
+
+▶️ **[Watch the full walkthrough on YouTube](https://youtu.be/LQHBS4K-aGA)**
+
 ## Demo Screenshots
 
-| Chat UI with Citations | Sidebar History | Health Check |
-|------------------------|-----------------|--------------|
-| ![chat](docs/demo-chat.png) | ![sidebar](docs/demo-sidebar.png) | ![health](docs/demo-health.png) |
+| Install Query | Greeting (No Tool Calls) | Test Suite |
+|---------------|--------------------------|------------|
+| ![install](docs/demo-install.png) | ![greeting](docs/demo-greeting.png) | ![tests](docs/demo-tests.png) |
+
+| Evaluation Results |
+|--------------------|
+| ![eval](docs/demo-eval.png) |
 
 ## Quick Start
 
