@@ -253,7 +253,7 @@ What would change for a real deployment on the Kubeflow platform:
 
 ## References
 
-- [GSoC 2026 Spec: Agentic RAG on Kubeflow](https://www.kubeflow.org/events/gsoc-2026/)
+- [2026 Spec: Agentic RAG on Kubeflow](https://www.kubeflow.org/events/gsoc-2026/)
 - [KEP-867: Docs Agent Reference Architecture](https://docs.google.com/document/d/1RV2bfoZi8cVG0s1kmMNJ2sk6igAFzjJEROaltU21bWw/)
 - [Docs Agent V2 Vision Doc](https://github.com/kubeflow/docs-agent) (Chase Christensen)
 - [Optimizing RAG Pipelines with Katib](https://blog.kubeflow.org/katib/rag/)
