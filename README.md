@@ -28,7 +28,7 @@ User Query -> FastAPI (:8000) -> LangGraph StateGraph
 
 [![Kubeflow Docs Agent POC Demo](https://img.youtube.com/vi/LQHBS4K-aGA/maxresdefault.jpg)](https://youtu.be/LQHBS4K-aGA)
 
-▶️ **[Watch the full walkthrough on YouTube](https://youtu.be/LQHBS4K-aGA)**
+ **[Watch the full walkthrough on YouTube](https://youtu.be/LQHBS4K-aGA)**
 
 ## Demo Screenshots
 
